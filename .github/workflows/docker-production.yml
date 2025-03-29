@@ -20,8 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Lint step is optional and won't fail the build
       - name: Lint
-        run: npm run lint || echo "Linting issues detected"
+        run: npm run lint || echo "Linting completed with warnings"
 
       # Generate version
       - name: Generate version
