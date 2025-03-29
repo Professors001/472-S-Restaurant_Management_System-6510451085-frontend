@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   nextjs:
     build:
@@ -15,14 +17,43 @@ services:
       - NODE_ENV=development
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: yarn dev 
+    command: npm run dev
+    networks:
+      - omnidine
+  
+  mariadb:
+    image: mariadb:10.6
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: omnidine
+      MYSQL_USER: omnidine
+      MYSQL_PASSWORD: omnidine
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - omnidine
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    depends_on:
+      - mariadb
     networks:
       - omnidine
 
 networks:
   omnidine:
-    name: omnidine-backend_sail
+    name: 472-s-restaurant_management_system-6510451085-backend_sail
     external: true
 
 volumes:
   node_modules:
+  .next:
+  mariadb_data:
