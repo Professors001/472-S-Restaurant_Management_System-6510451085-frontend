@@ -15,13 +15,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Lint
-        run: yarn lint || echo "Linting issues detected"
+        run: npm run lint || echo "Linting issues detected"
 
       # Generate version
       - name: Generate version
