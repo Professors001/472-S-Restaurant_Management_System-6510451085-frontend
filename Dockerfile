@@ -16,32 +16,28 @@ COPY . .
 # Build the Next.js app for production - bypass TypeScript and ESLint errors
 RUN NEXT_TELEMETRY_DISABLED=1 npm run build --no-lint || echo "Build completed with warnings"
 
-# Production stage
-FROM node:18-alpine AS runner
+# Production stage - completely rewritten
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
-# Set proper environment
+# Set production environment
 ENV NODE_ENV=production
+ENV PORT=3000
 
-# Copy built files from builder stage
+# Copy necessary files from builder stage
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json* ./
+COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
 
-# Set the correct permissions
-RUN chown -R nextjs:nodejs /app
+# Install production dependencies only
+RUN npm ci --production
 
-# Use the non-root user
-USER nextjs
-
-# Expose port 3000
+# Expose port
 EXPOSE 3000
 
-# Run the Next.js app
-CMD ["node", "server.js"]
+# Start the application
+CMD ["npm", "start"]
